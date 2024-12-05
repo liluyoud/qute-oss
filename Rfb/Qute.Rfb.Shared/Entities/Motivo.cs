@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Qute.Rfb.Shared.Entities;
 
-[Table("rfb_cnaes")]
-public class Cnae
+[Table("rfb_motivos")]
+public class Motivo
 {
     [Key]
     [Column("id")]
-    [StringLength(7)]
+    [StringLength(2)]
     public required string Id { get; set; }
 
     [Column("descricao")]

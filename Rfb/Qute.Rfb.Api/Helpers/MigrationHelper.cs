@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using Qute.Rfb.Shared.Enums;
-using System;
 using System.IO.Compression;
 
 namespace Qute.Rfb.Api.Helpers;
@@ -78,7 +77,7 @@ public static class MigrationHelper
         }
     }
 
-    public static void ExtractRfbFiles(this IHostEnvironment env, ILogger logger)
+    public static void ExtractRfbFiles(IHostEnvironment env, ILogger logger)
     {
         string appDir = env.ContentRootPath;
         string zipDir = Path.Combine(appDir, "downloads", "zip");
@@ -96,6 +95,30 @@ public static class MigrationHelper
             string csvFile = Path.Combine(csvDir, Path.GetFileNameWithoutExtension(file));
             ZipFile.ExtractToDirectory(file, csvFile);
             logger.LogInformation($"{file} unziped.");
+        }
+    }
+
+    public static void MoveFilesToRootFolder(IHostEnvironment env, ILogger logger)
+    {
+        string appDir = Path.Combine(env.ContentRootPath, "downloads", "csv");
+        if (Directory.Exists(appDir))
+        {
+            var subdirectories = Directory.GetDirectories(appDir);
+            foreach (var subdirectory in subdirectories)
+            {
+                var files = Directory.GetFiles(subdirectory);
+                foreach (var file in files)
+                {
+                    var destFile = Path.Combine(appDir, Path.GetFileName(file));
+                    logger.LogInformation($"Moving {destFile}");
+                    if (File.Exists(destFile))
+                    {
+                        File.Delete(destFile);
+                    }
+                    File.Move(file, destFile);
+                }
+                Directory.Delete(subdirectory, true);
+            }
         }
     }
 }

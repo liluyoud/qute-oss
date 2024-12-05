@@ -28,4 +28,8 @@
     <ProjectReference Include="..\Qute.Rfb.Shared\Qute.Rfb.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="downloads\zip\" />
+  </ItemGroup>
+
 </Project>

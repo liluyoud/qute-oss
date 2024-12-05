@@ -6,6 +6,7 @@ namespace Qute.Rfb.Api.Contexts;
 public class RfbContext(DbContextOptions<RfbContext> options) : DbContext(options)
 {
     public DbSet<Cnae> Cnaes { get; set; } = default!;
+    public DbSet<Motivo> Motivos { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
