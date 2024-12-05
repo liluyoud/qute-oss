@@ -1,11 +1,4 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.EntityFrameworkCore;
-using Qute.Shared.Extensions;
-using Qute.Rfb.Api.Contexts;
-using Qute.Rfb.Shared.Entities;
-using System.IO;
-
-namespace Qute.Rfb.Api.Endpoints;
+﻿namespace Qute.Rfb.Api.Endpoints;
 
 public static class MigrateEndpoints
 {
