@@ -69,11 +69,13 @@ public static class MigrationHelper
         {
             var fileUrl = $"{baseUrl}/{fileName}";
             var filePath = Path.Combine(zipDir, fileName);
-            using var httpClient = new HttpClient();
-            var fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
-            logger.LogInformation($"{fileUrl} downloaded.");
-            await File.WriteAllBytesAsync(filePath, fileBytes);
-            logger.LogInformation($"{filePath} created.");
+            await DownloadFileWithProgressAsync(fileUrl, filePath, logger);
+            //using var httpClient = new HttpClient();
+            //logger.LogInformation($"Initiating download {fileUrl}.");
+            //var fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
+            //logger.LogInformation($"{fileUrl} downloaded.");
+            //await File.WriteAllBytesAsync(filePath, fileBytes);
+            //logger.LogInformation($"{filePath} created.");
         }
     }
 
@@ -121,4 +123,82 @@ public static class MigrationHelper
             }
         }
     }
+
+    public static async Task DownloadFileWithProgressAsync(string url, string outputPath, ILogger logger)
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            logger.LogInformation($"Initiating download {url}.");
+            // Enviar o request e obter o tamanho do arquivo
+            HttpResponseMessage response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+            response.EnsureSuccessStatusCode();
+
+            long? totalBytes = response.Content.Headers.ContentLength;
+
+            // Abrir streams para leitura e gravação
+            using (Stream contentStream = await response.Content.ReadAsStreamAsync(),
+                          fileStream = new FileStream(outputPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true))
+            {
+                byte[] buffer = new byte[10485760];
+                long totalBytesRead = 0;
+                int bytesRead;
+                double progressPercentage = 0;
+
+                // Ler o conteúdo do arquivo em partes
+                while ((bytesRead = await contentStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                {
+                    // Escrever no arquivo local
+                    await fileStream.WriteAsync(buffer, 0, bytesRead);
+
+                    // Atualizar progresso
+                    totalBytesRead += bytesRead;
+                    if (totalBytes.HasValue)
+                    {
+                        progressPercentage = (double)totalBytesRead / totalBytes.Value * 100;
+                        logger.LogInformation($"Downloading {totalBytesRead / (1024 * 1024)} MB of {totalBytes / (1024 * 1024)} MB ({progressPercentage:F2}%)");
+                    }
+                    else
+                    {
+                        logger.LogInformation($"Downloaded {totalBytesRead / (1024 * 1024)} MB");
+                    }
+                }
+
+                logger.LogInformation($"{url} downloaded.");
+            }
+        }
+    }
+
+    public static string GetString(this string value)
+    {
+        return value.Replace("\"", "");
+    }
+
+    public static string? GetStringValue(this string value)
+    {
+        value = value.Replace("\"", "");
+        return string.IsNullOrEmpty(value) ? null : value;
+    }
+
+    public static decimal? GetDecimalValue(this string value)
+    {
+        value = value.Replace("\"", "");
+        if (!string.IsNullOrEmpty(value))
+        {
+            var number = Convert.ToDecimal(value);
+            return number;
+        }
+        return null;
+    }
+
+    public static PorteEmpresa? GetPorteEmpresaValue(this string value)
+    {
+        value = value.Replace("\"", "");
+        if (!string.IsNullOrEmpty(value))
+        {
+            var i = Convert.ToInt32(value);
+            return (PorteEmpresa)i;
+        }
+        return null;
+    }
+
 }
