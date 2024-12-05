@@ -1,4 +1,7 @@
-﻿namespace Qute.Rfb.Api.Endpoints;
+﻿using Qute.Rfb.Api.Helpers;
+using Qute.Rfb.Shared.Enums;
+
+namespace Qute.Rfb.Api.Endpoints;
 
 public static class MigrateEndpoints
 {
@@ -6,33 +9,27 @@ public static class MigrateEndpoints
     {
         var migration = app.MapGroup("migrate").WithTags("Migração");
 
-        migration.MapGet("download", async (IHostEnvironment env) =>
+        migration.MapGet("download", async (IHostEnvironment env, ILogger<Program> logger) =>
         {
-            string appDir = env.ContentRootPath;
-            //if (env.IsDevelopment())
-            //    appDir = Path.Combine();
-            string downloadDir = Path.Combine(appDir, "downloads"); // Diretório no container
-            string fileUrl = "https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj/2024-11/Cnaes.zip";
-            string fileName = "Cnaes.zip";
-            string filePath = Path.Combine(downloadDir, fileName);
+            await MigrationHelper.DownloadRfbFiles(env, logger, RfbFileType.Basico);
 
-            // Cria o diretório
-            if (!Directory.Exists(downloadDir))
-                Directory.CreateDirectory(downloadDir);
-
-            // Baixar o arquivo
-            using var httpClient = new HttpClient();
-            var fileBytes = await httpClient.GetByteArrayAsync(fileUrl);
-
-            // Salvar no diretório de download
-            await File.WriteAllBytesAsync(filePath, fileBytes);
-
-            return Results.Ok($"Arquivo salvo em: {filePath}");
+            return Results.Ok($"Files downloaded");
         })
         .WithName("download")
         .WithSummary("Download RFB Files")
         .WithDescription("Download RFB Files.")
         .Produces(200);
+
+        migration.MapGet("extract", (IHostEnvironment env, ILogger<Program> logger) =>
+        {
+            MigrationHelper.ExtractRfbFiles(env, logger);
+
+            return Results.Ok($"Files extracted");
+        })
+       .WithName("extract")
+       .WithSummary("Unzip RFB Files")
+       .WithDescription("Unzip RFB Files.")
+       .Produces(200);
 
         return app;
     }
