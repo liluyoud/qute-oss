@@ -47,7 +47,7 @@ public static class AppHelper
         services.AddQuartz(q =>
         {
             // keys
-            var downloadBasicKey = new JobKey("DownloadBasic");
+            var downloadBasicoKey = new JobKey("DownloadBasico");
             var downloadEmpresaKey = new JobKey("DownloadEmpresa");
             var downloadEstabelecimentoKey = new JobKey("DownloadEstabelecimento");
             var downloadSocioKey = new JobKey("DownloadSocio");
@@ -57,9 +57,11 @@ public static class AppHelper
             var migrateBasicoKey = new JobKey("MigrateBasico");
             var migrateEmpresasKey = new JobKey("MigrateEmpresas");
             var migrateSimplesKey = new JobKey("MigrateSimples");
+            var migrateEstabelecimentosKey = new JobKey("MigrateEstabelecimentos");
+            var migrateSociosKey = new JobKey("MigrateSocios");
 
             // Jobs
-            q.AddJob<DownloadBasic>(opts => opts.WithIdentity(downloadBasicKey));
+            q.AddJob<DownloadBasico>(opts => opts.WithIdentity(downloadBasicoKey));
             q.AddJob<DownloadEmpresa>(opts => opts.WithIdentity(downloadEmpresaKey));
             q.AddJob<DownloadEstabelecimento>(opts => opts.WithIdentity(downloadEstabelecimentoKey));
             q.AddJob<DownloadSocio>(opts => opts.WithIdentity(downloadSocioKey));
@@ -69,42 +71,63 @@ public static class AppHelper
             q.AddJob<MigrateBasico>(opts => opts.WithIdentity(migrateBasicoKey));
             q.AddJob<MigrateEmpresa>(opts => opts.WithIdentity(migrateEmpresasKey));
             q.AddJob<MigrateSimples>(opts => opts.WithIdentity(migrateSimplesKey));
+            q.AddJob<MigrateEstabelecimento>(opts => opts.WithIdentity(migrateEstabelecimentosKey));
+            q.AddJob<MigrateSocio>(opts => opts.WithIdentity(migrateSociosKey));
+
+            var cronDownloadBasico = Environment.GetEnvironmentVariable("DOWNLOAD_BASICOS") ?? "0 0 5 * * ?"; // meia noite do dia 5 de cada mês
+            var cronDownloadEmpresas = Environment.GetEnvironmentVariable("DOWNLOAD_EMPRESAS") ?? "0 1 5 * * ?"; // 1 da manhã do dia 5 de cada mês
+            var cronDownloadEstabelecimentos = Environment.GetEnvironmentVariable("DOWNLOAD_ESTABELECIMENTOS") ?? "0 2 5 * * ?"; // 2 da mahã do dia 5 de cada mês
+            var cronDownloadSocios = Environment.GetEnvironmentVariable("DOWNLOAD_SOCIOS") ?? "0 3 5 * * ?"; // 3 da manhã do dia 5 de cada mês
+            var cronProcessaArquivos = Environment.GetEnvironmentVariable("PROCESSA_ARQUIVOS") ?? "0 0 6 * * ?"; // meia noite do dia 6 de cada mês
+            var cronMigraBasico = Environment.GetEnvironmentVariable("MIGRA_BASICOS") ?? "0 1 6 * * ?"; // 1 da manhã do dia 6 de cada mês
+            var cronMigraEmpresas = Environment.GetEnvironmentVariable("MIGRA_EMPRESAS") ?? "0 2 6 * * ?"; // 2 da manhã do dia 6 de cada mês
+            var cronMigraSimples = Environment.GetEnvironmentVariable("MIGRA_SIMPLES") ?? "0 0 7 * * ?"; // meia noite do dia 7 de cada mês
+            var cronMigraEstabelecimentos = Environment.GetEnvironmentVariable("MIGRA_ESTABELECIMENTOS") ?? "0 0 8 * * ?"; // meia noite do dia 8 de cada mês
+            var cronMigraSocios = Environment.GetEnvironmentVariable("MIGRA_SOCIOS") ?? "0 0 9 * * ?"; // meia noite do dia 9 de cada mês
 
             // Triggers
             q.AddTrigger(opts => opts
-                .ForJob(downloadBasicKey) 
-                .WithIdentity("DownloadBasic-Mensal") 
-                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+                .ForJob(downloadBasicoKey) 
+                .WithIdentity("DownloadBasico-Mensal") 
+                .WithCronSchedule(cronDownloadBasico)); // meia noite do dia 5 de cada mês
             q.AddTrigger(opts => opts
                 .ForJob(downloadEmpresaKey)
                 .WithIdentity("DownloadEmpresa-Mensal")
-                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronDownloadEmpresas)); // meia noite do dia 5 de cada mês
             q.AddTrigger(opts => opts
                 .ForJob(downloadEstabelecimentoKey)
                 .WithIdentity("DownloadEstabelecimento-Mensal")
-                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronDownloadEstabelecimentos)); // meia noite do dia 5 de cada mês
             q.AddTrigger(opts => opts
                 .ForJob(downloadSocioKey)
                 .WithIdentity("DownloadSocio-Mensal")
-                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronDownloadSocios)); // meia noite do dia 5 de cada mês
 
             q.AddTrigger(opts => opts
                 .ForJob(processFilesKey)
                 .WithIdentity("ProcessFiles-Mensal")
-                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronProcessaArquivos)); // meia noite do dia 5 de cada mês
 
             q.AddTrigger(opts => opts
                 .ForJob(migrateBasicoKey)
                 .WithIdentity("MigrateBasico-Mensal")
-                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronMigraBasico)); // meia noite do dia 5 de cada mês
             q.AddTrigger(opts => opts
                 .ForJob(migrateEmpresasKey)
                 .WithIdentity("MigrateEmpresa-Mensal")
-                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronMigraEmpresas)); // meia noite do dia 5 de cada mês
             q.AddTrigger(opts => opts
                 .ForJob(migrateSimplesKey)
                 .WithIdentity("MigrateSimples-Mensal")
-                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+                .WithCronSchedule(cronMigraSimples)); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(migrateEstabelecimentosKey)
+                .WithIdentity("MigrateEstabelecimentos-Mensal")
+                .WithCronSchedule(cronMigraEstabelecimentos)); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(migrateSociosKey)
+                .WithIdentity("MigrateSocios-Mensal")
+                .WithCronSchedule(cronMigraSocios)); // meia noite do dia 5 de cada mês
 
         });
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);

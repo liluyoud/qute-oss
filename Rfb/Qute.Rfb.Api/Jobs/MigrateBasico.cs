@@ -16,13 +16,13 @@ public class MigrateBasico : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Iniciando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Iniciando Migrate Basico em {DateTimeOffset.Now}");
         await _rfb.MigrateCnaes();
         await _rfb.MigrateMotivos();
         await _rfb.MigrateMunicipios();
         await _rfb.MigrateNaturezas();
         await _rfb.MigratePaises();
         await _rfb.MigrateQualificacoes();
-        _logger.LogInformation($"Finalizando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Finalizando Migrate Basico em {DateTimeOffset.Now}");
     }
 }

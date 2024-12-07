@@ -16,9 +16,9 @@ public class MigrateEmpresa : IJob
 
     public Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Iniciando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Iniciando Migrate Empresa em {DateTimeOffset.Now}");
         _rfb.MigrateEmpresas();
-        _logger.LogInformation($"Finalizando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Finalizando Migrate Empresa em {DateTimeOffset.Now}");
 
         return Task.CompletedTask;
     }

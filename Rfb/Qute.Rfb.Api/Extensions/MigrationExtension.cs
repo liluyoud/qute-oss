@@ -1,9 +1,21 @@
 ﻿using Qute.Rfb.Shared.Enums;
 
-namespace Qute.Rfb.Api.Helpers;
+namespace Qute.Rfb.Api.Extensions;
 
-public static class MigrationHelper
+public static class MigrationExtension
 {
+    public static byte GetByte(this string value)
+    {
+        value = value.Replace("\"", "");
+        return byte.Parse(value);
+    }
+
+    public static short GetShort(this string value)
+    {
+        value = value.Replace("\"", "");
+        return short.Parse(value);
+    }
+
     public static int GetInteger(this string value)
     {
         value = value.Replace("\"", "");
@@ -16,6 +28,17 @@ public static class MigrationHelper
         if (!string.IsNullOrEmpty(value))
         {
             return int.Parse(value);
+        }
+        return null;
+    }
+
+    public static int[]? GetIntegerArrayOrNull(this string value)
+    {
+        value = value.Replace("\"", "");
+        if (!string.IsNullOrEmpty(value))
+        {
+            var values = value.Split(",");
+            return values.Select(v => int.Parse(v)).ToArray();
         }
         return null;
     }
@@ -40,16 +63,16 @@ public static class MigrationHelper
     {
         value = value.Replace("\"", "");
         return new DateOnly(
-            int.Parse(value.Substring(0,4)), 
-            int.Parse(value.Substring(4,2)), 
-            int.Parse(value.Substring(6,2))
+            int.Parse(value.Substring(0, 4)),
+            int.Parse(value.Substring(4, 2)),
+            int.Parse(value.Substring(6, 2))
         );
     }
 
     public static DateOnly? GetDateOnlyOrNull(this string value)
     {
         value = value.Replace("\"", "");
-        if (!string.IsNullOrEmpty(value) && value != "00000000")
+        if (!string.IsNullOrEmpty(value) && value.Length == 8 && value != "00000000" )
         {
             return new DateOnly(
                 int.Parse(value.Substring(0, 4)),
@@ -62,12 +85,16 @@ public static class MigrationHelper
 
     public static string GetString(this string value)
     {
-        return value.Replace("\"", "");
+        value = value.Replace("\"", "");
+        value = value.Trim();
+        return value = value.Replace("  ", " "); 
     }
 
     public static string? GetStringOrNull(this string value)
     {
         value = value.Replace("\"", "");
+        value = value.Trim();
+        value = value.Replace("  ", " ");
         return string.IsNullOrEmpty(value) ? null : value;
     }
 

@@ -16,12 +16,10 @@ public class Empresa
     public required string Nome { get; set; }
 
     [Column("natureza_juridica_id")]
-    [StringLength(4)]
-    public string? NaturezaJuridicaId { get; set; }
+    public int? NaturezaJuridicaId { get; set; }
 
     [Column("qualificacao_id")]
-    [StringLength(2)]
-    public string? QualificacaoId { get; set; }
+    public int? QualificacaoId { get; set; }
 
     [Column("capital_social")]
     public decimal? CapitalSocial { get; set; }

@@ -15,7 +15,7 @@ public static class JobEndpoints
             var scheduler = await schedulerFactory.GetScheduler();
 
             // Cria o identificador do job
-            var jobKey = new JobKey("DownloadBasic");
+            var jobKey = new JobKey("DownloadBasico");
             if (!await scheduler.CheckExists(jobKey))
                 return Results.BadRequest("Job não encontrado.");
 
@@ -105,12 +105,12 @@ public static class JobEndpoints
             return Results.Ok("Job executado com sucesso.");
         })
         .WithName("JobProcessFiles")
-        .WithSummary("Processar Arquivos")
+        .WithSummary("Processa Arquivos")
         .WithDescription("Extrair e mover os arquvivos baixados")
         .Produces(200);
         #endregion
 
-
+        #region migrations
         migration.MapGet("migrate/basico", async (ISchedulerFactory schedulerFactory) =>
         {
             // Obtém o scheduler
@@ -148,7 +148,7 @@ public static class JobEndpoints
         })
         .WithName("JobMigrateEmpresas")
         .WithSummary("Migra Empresas")
-        .WithDescription("Migra os dados dos arquivos de empresas para a tabela de empresas")
+        .WithDescription("Migra os dados dos arquivos de empresas para a tabela")
         .Produces(200);
 
         migration.MapGet("migrate/simples", async (ISchedulerFactory schedulerFactory) =>
@@ -167,9 +167,51 @@ public static class JobEndpoints
             return Results.Ok("Job executado com sucesso.");
         })
         .WithName("JobMigrateSimples")
-        .WithSummary("Migra simples")
-        .WithDescription("Migra os dados dos simples para a tabela de simples")
+        .WithSummary("Migra Simples")
+        .WithDescription("Migra os dados dos simples para a tabela")
         .Produces(200);
+
+        migration.MapGet("migrate/estabelecimentos", async (ISchedulerFactory schedulerFactory) =>
+        {
+            // Obtém o scheduler
+            var scheduler = await schedulerFactory.GetScheduler();
+
+            // Cria o identificador do job
+            var jobKey = new JobKey("MigrateEstabelecimentos");
+            if (!await scheduler.CheckExists(jobKey))
+                return Results.BadRequest("Job não encontrado.");
+
+            // Executar o job em background
+            _ = Task.Run(() => scheduler.TriggerJob(jobKey));
+
+            return Results.Ok("Job executado com sucesso.");
+        })
+        .WithName("JobMigrateEstabelecimentos")
+        .WithSummary("Migra Estabelecimentos")
+        .WithDescription("Migra os dados dos estabelcimentos para a tabela")
+        .Produces(200);
+
+        migration.MapGet("migrate/socios", async (ISchedulerFactory schedulerFactory) =>
+        {
+            // Obtém o scheduler
+            var scheduler = await schedulerFactory.GetScheduler();
+
+            // Cria o identificador do job
+            var jobKey = new JobKey("MigrateSocios");
+            if (!await scheduler.CheckExists(jobKey))
+                return Results.BadRequest("Job não encontrado.");
+
+            // Executar o job em background
+            _ = Task.Run(() => scheduler.TriggerJob(jobKey));
+
+            return Results.Ok("Job executado com sucesso.");
+        })
+        .WithName("JobMigrateSocios")
+        .WithSummary("Migra Sócios")
+        .WithDescription("Migra os dados dos sócios para a tabela")
+        .Produces(200);
+
+        #endregion
 
         return app;
     }

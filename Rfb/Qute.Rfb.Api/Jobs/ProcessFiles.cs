@@ -16,10 +16,10 @@ public class ProcessFiles : IJob
 
     public Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Iniciando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Iniciando Process Files em {DateTimeOffset.Now}");
         _rfb.ExtractFiles();
         _rfb.MoveFiles();
-        _logger.LogInformation($"Finalizando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Finalizando Process Files em {DateTimeOffset.Now}");
 
         return Task.CompletedTask;
     }

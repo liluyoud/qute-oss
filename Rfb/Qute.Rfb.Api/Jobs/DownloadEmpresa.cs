@@ -16,8 +16,8 @@ public class DownloadEmpresa : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Iniciando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Iniciando Download Empresa em {DateTimeOffset.Now}");
         await _rfb.DownloadBasicFiles();
-        _logger.LogInformation($"Finalizando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Finalizando Download Empresa em {DateTimeOffset.Now}");
     }
 }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Qute.Rfb.Api.Contexts;
-using Qute.Rfb.Api.Helpers;
+using Qute.Rfb.Api.Extensions;
 using Qute.Rfb.Shared.Entities;
 using System.IO.Compression;
 using System.Text;
@@ -70,14 +70,13 @@ public class RfbServices
                                     if (values != null && values.Length == 7)
                                     {
                                         writer.StartRow();
-                                        //_logger.LogInformation($"Empresa: {values[0]}");
-                                        writer.Write(values[0].GetInteger());
-                                        writer.Write(values[1].GetString());
-                                        writer.Write(values[2].GetIntegerOrNull());
-                                        writer.Write(values[3].GetIntegerOrNull());
-                                        writer.Write(values[4].GetDecimalOrNull());
-                                        writer.Write(values[5].GetIntegerOrNull());
-                                        writer.Write(values[6].GetStringOrNull());
+                                        writer.Write(values[0].GetInteger()); // id
+                                        writer.Write(values[1].GetString()); // nome
+                                        writer.Write(values[2].GetIntegerOrNull()); // natureza_juridica_id
+                                        writer.Write(values[3].GetIntegerOrNull()); // qualificacao_id
+                                        writer.Write(values[4].GetDecimalOrNull()); // capital_social
+                                        writer.Write(values[5].GetIntegerOrNull()); // porte
+                                        writer.Write(values[6].GetStringOrNull()); // ente_federativo
                                         if (++i % 100000 == 0)
                                             _logger.LogInformation($"{i} empresas inseridas");
                                     }
@@ -86,6 +85,7 @@ public class RfbServices
                             writer.Complete();
                         }
                         transaction.Commit();
+                        _logger.LogInformation($"Total de {i} empresas inseridas");
                     }
 
                     // inserindo os dados na tabela final
@@ -101,6 +101,87 @@ public class RfbServices
                             ON CONFLICT (id) DO NOTHING;
                         ";
                         command.ExecuteNonQuery();
+                    }
+
+                }
+            }
+        }
+    }
+
+    public void MigrateEstabelecimentos()
+    {
+        var estabelecimentos = _context.Estabelecimentos.Count();
+        if (estabelecimentos == 0)
+        {
+            var csvDir = Path.Combine(_env.ContentRootPath, "downloads", "csv");
+            var files = Directory.GetFiles(csvDir, "*ESTABE*");
+            var i = 0;
+            foreach (var file in files)
+            {
+                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
+                {
+                    connection.Open();
+
+                    // copiando os dados para a tabela temporária
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        using (var writer = connection.BeginBinaryImport(
+                        "COPY rfb_estabelecimentos (cnpj, ordem, dv, matriz_filial, nome_fantasia, " +
+                        "situacao_cadastral, situacao_cadastral_data, motivo_id, " +
+                        "cidade_exterior, pais_id, " +
+                        "inicio_atividades, cnae_id, cnaes_secundarios, " +
+                        "tipo_logradouro, logradouro, numero, complemento, bairro, cep, uf, municipio_id, " +
+                        "ddd1, telefone1, ddd2, telefone2, ddd_fax, telefone_fax, email, " +
+                        "situacao_especial, situacao_especial_data) FROM STDIN (FORMAT BINARY)"))
+                        {
+                            using (var reader = new StreamReader(file, Encoding.Latin1))
+                            {
+                                while (!reader.EndOfStream)
+                                {
+                                    var line = reader.ReadLine();
+                                    var values = line?.Split(';');
+                                    if (values != null && values.Length == 30)
+                                    {
+                                        writer.StartRow();
+                                        writer.Write(values[0].GetInteger()); // cnpj
+                                        writer.Write(values[1].GetShort()); // ordem
+                                        writer.Write(values[2].GetByte()); // dv
+                                        writer.Write(values[3].GetIntegerOrNull()); // matriz_filial
+                                        writer.Write(values[4].GetStringOrNull()); // nome_fantasia
+                                        writer.Write(values[5].GetIntegerOrNull()); // situacao_cadastral
+                                        writer.Write(values[6].GetDateOnlyOrNull());  // situacao_cadastral_data
+                                        writer.Write(values[7].GetIntegerOrNull()); // motivo_id
+                                        writer.Write(values[8].GetStringOrNull()); // cidade_exterior
+                                        writer.Write(values[9].GetIntegerOrNull()); // pais_id
+                                        writer.Write(values[10].GetDateOnlyOrNull()); // inicio_atividades
+                                        writer.Write(values[11].GetIntegerOrNull()); // cnae_id
+                                        writer.Write(values[12].GetIntegerArrayOrNull()); // cnaes_secundarios
+                                        writer.Write(values[13].GetStringOrNull()); // tipo_logradouro
+                                        writer.Write(values[14].GetStringOrNull()); // logradouro
+                                        writer.Write(values[15].GetStringOrNull()); // numero
+                                        writer.Write(values[16].GetStringOrNull()); // complemento
+                                        writer.Write(values[17].GetStringOrNull()); // bairro
+                                        writer.Write(values[18].GetStringOrNull()); // cep
+                                        writer.Write(values[19].GetStringOrNull()); // uf
+                                        writer.Write(values[20].GetIntegerOrNull()); // municipio_id
+                                        writer.Write(values[21].GetStringOrNull()); // ddd1
+                                        writer.Write(values[22].GetStringOrNull()); // telefone1
+                                        writer.Write(values[23].GetStringOrNull()); // ddd2
+                                        writer.Write(values[24].GetStringOrNull()); // telefone2
+                                        writer.Write(values[25].GetStringOrNull()); // ddd_fax
+                                        writer.Write(values[26].GetStringOrNull()); // telefone_fax
+                                        writer.Write(values[27].GetStringOrNull()?.ToLower()); // email
+                                        writer.Write(values[28].GetStringOrNull()); // situacao_especial
+                                        writer.Write(values[29].GetDateOnlyOrNull()); // situacao_especial_data
+                                        if (++i % 100000 == 0)
+                                            _logger.LogInformation($"{i} estabelecimentos inseridos");
+                                    }
+                                }
+                            }
+                            writer.Complete();
+                        }
+                        transaction.Commit();
+                        _logger.LogInformation($"Total de {i} estabelecimentos inseridos");
                     }
 
                 }
@@ -153,6 +234,62 @@ public class RfbServices
                             writer.Complete();
                         }
                         transaction.Commit();
+                        _logger.LogInformation($"Total de {i} simples inseridos");
+                    }
+                }
+            }
+        }
+    }
+
+    public void MigrateSocios()
+    {
+        var socios = _context.Socios.Count();
+        if (socios == 0)
+        {
+            var csvDir = Path.Combine(_env.ContentRootPath, "downloads", "csv");
+            var files = Directory.GetFiles(csvDir, "*SOCIO*");
+            var i = 0;
+            foreach (var file in files)
+            {
+                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
+                {
+                    connection.Open();
+
+                    using (var transaction = connection.BeginTransaction())
+                    {
+                        using (var writer = connection.BeginBinaryImport(
+                            "COPY rfb_socios (cnpj, tipo, nome, cpf_cnpj, qualificacao_id, data_entrada, pais_id, " +
+                            "representante_cpf_cnpj, representante_nome, representante_qualificacao_id, faixa_etaria) FROM STDIN (FORMAT BINARY)"))
+                        {
+                            using (var reader = new StreamReader(file, Encoding.Latin1))
+                            {
+                                while (!reader.EndOfStream)
+                                {
+                                    var line = reader.ReadLine();
+                                    var values = line?.Split(';');
+                                    if (values != null && values.Length == 11)
+                                    {
+                                        writer.StartRow();
+                                        writer.Write(values[0].GetInteger()); // cnjp
+                                        writer.Write(values[1].GetIntegerOrNull()); // tipo
+                                        writer.Write(values[2].GetStringOrNull()); // nome
+                                        writer.Write(values[3].GetStringOrNull()); //  cpf_cnpj
+                                        writer.Write(values[4].GetIntegerOrNull()); // qualificacao_id
+                                        writer.Write(values[5].GetDateOnlyOrNull()); // data_entrada
+                                        writer.Write(values[6].GetIntegerOrNull()); // pais_id
+                                        writer.Write(values[7].GetStringOrNull()); // representante_cpf_cnpj
+                                        writer.Write(values[8].GetStringOrNull()); // representante_nome
+                                        writer.Write(values[9].GetIntegerOrNull()); // representante_qualificacao_id
+                                        writer.Write(values[10].GetIntegerOrNull()); // faixa_etaria
+                                        if (++i % 100000 == 0)
+                                            _logger.LogInformation($"{i} socios inseridos");
+                                    }
+                                }
+                            }
+                            writer.Complete();
+                        }
+                        transaction.Commit();
+                        _logger.LogInformation($"Total de {i} socios inseridos");
                     }
                 }
             }

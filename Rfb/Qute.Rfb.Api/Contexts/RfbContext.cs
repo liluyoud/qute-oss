@@ -14,24 +14,30 @@ public class RfbContext(DbContextOptions<RfbContext> options) : DbContext(option
     public DbSet<Empresa> Empresas { get; set; } = default!;
     public DbSet<MeiSimples> MeisSimples { get; set; } = default!;
     public DbSet<Estabelecimento> Estabelecimentos { get; set; } = default!;
+    public DbSet<Socio> Socios { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Cnae>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<Motivo>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<Municipio>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<NaturezaJuridica>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<Pais>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<Qualificacao>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
@@ -39,11 +45,22 @@ public class RfbContext(DbContextOptions<RfbContext> options) : DbContext(option
         modelBuilder.Entity<Empresa>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<MeiSimples>()
            .Property(e => e.Id)
            .ValueGeneratedNever();
+
         modelBuilder.Entity<Estabelecimento>()
-            .HasKey(e => new { e.Cnpj, e.Ordem, e.Dv });
+            .HasNoKey();
+        modelBuilder.Entity<Estabelecimento>()
+            .HasIndex(e => e.Cnpj)
+            .HasDatabaseName("ix_estabelecimentos_cnpj");
+
+        modelBuilder.Entity<Socio>()
+            .HasNoKey();
+        modelBuilder.Entity<Socio>()
+            .HasIndex(e => e.Cnpj)
+            .HasDatabaseName("ix_socios_cnpj");
 
         base.OnModelCreating(modelBuilder);
     }

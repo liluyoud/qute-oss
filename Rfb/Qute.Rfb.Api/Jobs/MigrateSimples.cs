@@ -16,9 +16,9 @@ public class MigrateSimples : IJob
 
     public Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Iniciando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Iniciando Migrate Simples em {DateTimeOffset.Now}");
         _rfb.MigrateSimples();
-        _logger.LogInformation($"Finalizando Worker em {DateTimeOffset.Now}");
+        _logger.LogInformation($"Finalizando Migrate Simples em {DateTimeOffset.Now}");
 
         return Task.CompletedTask;
     }
