@@ -191,8 +191,8 @@ public class RfbServices
 
     public void MigrateSimples()
     {
-        var empresas = _context.Empresas.Count();
-        if (empresas == 0)
+        var simples = _context.MeisSimples.Count();
+        if (simples == 0)
         {
             var csvDir = Path.Combine(_env.ContentRootPath, "downloads", "csv");
             var files = Directory.GetFiles(csvDir, "*SIMPLES*");

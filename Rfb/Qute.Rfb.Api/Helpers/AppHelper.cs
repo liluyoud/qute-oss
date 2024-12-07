@@ -162,6 +162,8 @@ public static class AppHelper
             }
         }
 
+        app.MapRfb();
+        app.MapTables();
         app.MapJobs();
     }
 
