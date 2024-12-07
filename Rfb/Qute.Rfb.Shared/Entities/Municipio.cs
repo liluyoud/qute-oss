@@ -8,8 +8,7 @@ public class Municipio
 {
     [Key]
     [Column("id")]
-    [StringLength(4)]
-    public required string Id { get; set; }
+    public required int Id { get; set; }
 
     [Column("nome")]
     [StringLength(255)]

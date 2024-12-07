@@ -9,8 +9,7 @@ public class Empresa
 {
     [Key]
     [Column("id")]
-    [StringLength(8)]
-    public required string Id { get; set; }
+    public required int Id { get; set; }
 
     [Column("nome")]
     [StringLength(255)]
@@ -18,15 +17,11 @@ public class Empresa
 
     [Column("natureza_juridica_id")]
     [StringLength(4)]
-    [ForeignKey(nameof(NaturezaJuridica))]
     public string? NaturezaJuridicaId { get; set; }
-    public NaturezaJuridica? NaturezaJuridica { get; set; }
 
     [Column("qualificacao_id")]
     [StringLength(2)]
-    [ForeignKey(nameof(Qualificacao))]
     public string? QualificacaoId { get; set; }
-    public Qualificacao? Qualificacao { get; set; }
 
     [Column("capital_social")]
     public decimal? CapitalSocial { get; set; }
@@ -35,6 +30,6 @@ public class Empresa
     public PorteEmpresa? Porte { get; set; }
 
     [Column("ente_federativo")]
-    [StringLength(8)]
+    [StringLength(255)]
     public string? EnteFederativo { get; set; }
 }

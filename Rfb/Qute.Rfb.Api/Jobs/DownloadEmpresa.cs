@@ -3,12 +3,12 @@ using Qute.Rfb.Api.Services;
 
 namespace Qute.Rfb.Api.Jobs;
 
-public class DownloadBasic : IJob
+public class DownloadEmpresa : IJob
 {
-    private readonly ILogger<DownloadBasic> _logger;
+    private readonly ILogger<DownloadEmpresa> _logger;
     private readonly RfbServices _rfb;
 
-    public DownloadBasic(ILogger<DownloadBasic> logger, RfbServices rfb)
+    public DownloadEmpresa(ILogger<DownloadEmpresa> logger, RfbServices rfb)
     {
         _logger = logger;
         _rfb = rfb;

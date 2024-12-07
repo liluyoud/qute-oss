@@ -1,8 +1,11 @@
 ﻿using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
+using Quartz;
 using Scalar.AspNetCore;
 using Qute.Rfb.Api.Contexts;
 using Qute.Rfb.Api.Endpoints;
+using Qute.Rfb.Api.Jobs;
+using Qute.Rfb.Api.Services;
 
 namespace Qute.Rfb.Api.Helpers;
 
@@ -36,6 +39,75 @@ public static class AppHelper
         redisUrl += redisUser != null ? $",user={redisUser}" : "";
         redisUrl += redisPassword != null ? $",password={redisPassword}" : "";
         services.AddStackExchangeRedisCache(options => options.Configuration = redisUrl);
+
+        // services
+        services.AddScoped<RfbServices>();
+
+        // quartz
+        services.AddQuartz(q =>
+        {
+            // keys
+            var downloadBasicKey = new JobKey("DownloadBasic");
+            var downloadEmpresaKey = new JobKey("DownloadEmpresa");
+            var downloadEstabelecimentoKey = new JobKey("DownloadEstabelecimento");
+            var downloadSocioKey = new JobKey("DownloadSocio");
+            
+            var processFilesKey = new JobKey("ProcessFiles");
+
+            var migrateBasicoKey = new JobKey("MigrateBasico");
+            var migrateEmpresasKey = new JobKey("MigrateEmpresas");
+            var migrateSimplesKey = new JobKey("MigrateSimples");
+
+            // Jobs
+            q.AddJob<DownloadBasic>(opts => opts.WithIdentity(downloadBasicKey));
+            q.AddJob<DownloadEmpresa>(opts => opts.WithIdentity(downloadEmpresaKey));
+            q.AddJob<DownloadEstabelecimento>(opts => opts.WithIdentity(downloadEstabelecimentoKey));
+            q.AddJob<DownloadSocio>(opts => opts.WithIdentity(downloadSocioKey));
+
+            q.AddJob<ProcessFiles>(opts => opts.WithIdentity(processFilesKey));
+
+            q.AddJob<MigrateBasico>(opts => opts.WithIdentity(migrateBasicoKey));
+            q.AddJob<MigrateEmpresa>(opts => opts.WithIdentity(migrateEmpresasKey));
+            q.AddJob<MigrateSimples>(opts => opts.WithIdentity(migrateSimplesKey));
+
+            // Triggers
+            q.AddTrigger(opts => opts
+                .ForJob(downloadBasicKey) 
+                .WithIdentity("DownloadBasic-Mensal") 
+                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(downloadEmpresaKey)
+                .WithIdentity("DownloadEmpresa-Mensal")
+                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(downloadEstabelecimentoKey)
+                .WithIdentity("DownloadEstabelecimento-Mensal")
+                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(downloadSocioKey)
+                .WithIdentity("DownloadSocio-Mensal")
+                .WithCronSchedule("0 0 5 * * ?")); // meia noite do dia 5 de cada mês
+
+            q.AddTrigger(opts => opts
+                .ForJob(processFilesKey)
+                .WithIdentity("ProcessFiles-Mensal")
+                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+
+            q.AddTrigger(opts => opts
+                .ForJob(migrateBasicoKey)
+                .WithIdentity("MigrateBasico-Mensal")
+                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(migrateEmpresasKey)
+                .WithIdentity("MigrateEmpresa-Mensal")
+                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+            q.AddTrigger(opts => opts
+                .ForJob(migrateSimplesKey)
+                .WithIdentity("MigrateSimples-Mensal")
+                .WithCronSchedule("0 0 6 * * ?")); // meia noite do dia 5 de cada mês
+
+        });
+        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
 
     public static void UseQute(this WebApplication app, IConfiguration conf)
@@ -67,7 +139,7 @@ public static class AppHelper
             }
         }
 
-        app.MapRfbMigration();
+        app.MapJobs();
     }
 
 }
