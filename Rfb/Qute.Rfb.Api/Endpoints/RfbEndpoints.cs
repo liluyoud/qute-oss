@@ -42,7 +42,6 @@ public static class RfbEndpoints
                         Qualificacao = qualificacao?.Descricao,
                         CapitalSocial = empresa.CapitalSocial,
                         Porte = empresa.Porte?.GetDescription(),
-                        EnteFederativo = empresa.EnteFederativo,
                         Opcao = strOpcao,
                         DataOpcao = dataOpcao
                     };

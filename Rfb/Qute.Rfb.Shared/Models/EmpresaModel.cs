@@ -1,8 +1,4 @@
-﻿using Qute.Rfb.Shared.Enums;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace Qute.Rfb.Shared.Models;
+﻿namespace Qute.Rfb.Shared.Models;
 
 public class EmpresaModel
 {
