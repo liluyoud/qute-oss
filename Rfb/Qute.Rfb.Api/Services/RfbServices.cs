@@ -588,35 +588,72 @@ public class RfbServices
 
     public async Task<List<string>> GetFileNames()
     {
-        var date = DateTime.Now.AddMonths(-1);
-        var dateStr = date.ToString("yyyy-MM");
-        var rfbUrl = Environment.GetEnvironmentVariable("RFB_URL") ?? "https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj";
-        string baseUrl = $"{rfbUrl}/{dateStr}";
         var fileNames = new List<string>();
-        try
-        {
-            using var client = new HttpClient();
-            var htmlContent = await client.GetStringAsync(baseUrl);
+        fileNames.Add("Cnaes.zip");
+        fileNames.Add("Empresas0.zip");
+        fileNames.Add("Empresas1.zip");
+        fileNames.Add("Empresas2.zip");
+        fileNames.Add("Empresas3.zip");
+        fileNames.Add("Empresas4.zip");
+        fileNames.Add("Empresas5.zip");
+        fileNames.Add("Empresas6.zip");
+        fileNames.Add("Empresas7.zip");
+        fileNames.Add("Empresas8.zip");
+        fileNames.Add("Empresas9.zip");
+        fileNames.Add("Estabelecimentos0.zip");
+        fileNames.Add("Estabelecimentos1.zip");
+        fileNames.Add("Estabelecimentos2.zip");
+        fileNames.Add("Estabelecimentos3.zip");
+        fileNames.Add("Estabelecimentos4.zip");
+        fileNames.Add("Estabelecimentos5.zip");
+        fileNames.Add("Estabelecimentos6.zip");
+        fileNames.Add("Estabelecimentos7.zip");
+        fileNames.Add("Estabelecimentos8.zip");
+        fileNames.Add("Estabelecimentos9.zip");
+        fileNames.Add("Motivos.zip");
+        fileNames.Add("Municipios.zip");
+        fileNames.Add("Naturezas.zip");
+        fileNames.Add("Paises.zip");
+        fileNames.Add("Qualificacoes.zip");
+        fileNames.Add("Simples.zip");
+        fileNames.Add("Socios0.zip");
+        fileNames.Add("Socios1.zip");
+        fileNames.Add("Socios2.zip");
+        fileNames.Add("Socios3.zip");
+        fileNames.Add("Socios4.zip");
+        fileNames.Add("Socios5.zip");
+        fileNames.Add("Socios6.zip");
+        fileNames.Add("Socios7.zip");
+        fileNames.Add("Socios8.zip");
+        fileNames.Add("Socios9.zip");
+        //var date = DateTime.Now.AddMonths(-1);
+        //var dateStr = date.ToString("yyyy-MM");
+        //var rfbUrl = Environment.GetEnvironmentVariable("RFB_URL") ?? "https://arquivos.receitafederal.gov.br/cnpj/dados_abertos_cnpj";
+        //string baseUrl = $"{rfbUrl}/{dateStr}/";
+        //try
+        //{
+        //    using var client = _http.CreateClient();
+        //    var htmlContent = await client.GetStringAsync(baseUrl);
 
-            // Carregar o HTML na estrutura do HtmlAgilityPack
-            var doc = new HtmlDocument();
-            doc.LoadHtml(htmlContent);
+        //    // Carregar o HTML na estrutura do HtmlAgilityPack
+        //    var doc = new HtmlDocument();
+        //    doc.LoadHtml(htmlContent);
 
-            // Selecionar todos os elementos <a> com um atributo href
-            var links = doc.DocumentNode.SelectNodes("//a[@href]");
-            if (links != null)
-            {
-                // Filtrar os links que possuem nomes de arquivos e adicioná-los à lista
-                fileNames = links
-                    .Where(link => link.Attributes["href"].Value.Contains(".zip")) // Filtrar arquivos .zip
-                    .Select(link => link.Attributes["href"].Value) // Pegar o valor do href
-                    .ToList();
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError($"Erro ao obter os arquivos da RFB: {ex.Message}");
-        }
+        //    // Selecionar todos os elementos <a> com um atributo href
+        //    var links = doc.DocumentNode.SelectNodes("//a[@href]");
+        //    if (links != null)
+        //    {
+        //        // Filtrar os links que possuem nomes de arquivos e adicioná-los à lista
+        //        fileNames = links
+        //            .Where(link => link.Attributes["href"].Value.Contains(".zip")) // Filtrar arquivos .zip
+        //            .Select(link => link.Attributes["href"].Value) // Pegar o valor do href
+        //            .ToList();
+        //    }
+        //}
+        //catch (Exception ex)
+        //{
+        //    _logger.LogError($"Erro ao obter os arquivos da RFB: {ex.Message} \n {ex.InnerException}");
+        //}
         return fileNames;
     }
 
