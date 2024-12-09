@@ -13,9 +13,9 @@ public static class RfbEndpoints
     {
         var tables = app.MapGroup("rfb").WithTags("Rfb");
 
-        tables.MapGet("empresa/{cnpj}", async (string cnpj, RfbContext context, IDistributedCache cache) =>
+        tables.MapPost("empresa", async (AIRequest request, RfbContext context, IDistributedCache cache) =>
         {
-            var id = cnpj.GetCnpjSimples();
+            var id = request.Cnpj.GetCnpjSimples();
 
             var lista = await cache.GetOrCreateAsync($"qute-cnpj-{id}", async () =>
             {
