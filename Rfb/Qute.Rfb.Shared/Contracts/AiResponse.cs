@@ -1,20 +1,14 @@
-﻿namespace Qute.Rfb.Shared.Models;
+﻿namespace Qute.Rfb.Shared.Contracts;
 
-public class EmpresaModel
+public class AiResponse
 {
+    public string? Cnpj { get; set; }
     public required string Nome { get; set; }
     public string? NaturezaJuridica { get; set; }
     public decimal? CapitalSocial { get; set; }
     public string? Porte { get; set; }
     public string? Opcao { get; set; }
     public DateOnly? DataOpcao { get; set; }
-    public List<EstabelecimentoModel> Estabelecimentos { get; set; } = new();
-    public List<SocioModel> Socios { get; set; } = new();
-}
-
-public class EstabelecimentoModel
-{
-    public string? Cnpj { get; set; }
     public string? MatrizFilial { get; set; }
     public string? NomeFantasia { get; set; }
     public string? SituacaoCadastral { get; set; }
@@ -23,8 +17,6 @@ public class EstabelecimentoModel
     public string? CidadeExterior { get; set; }
     public string? Pais { get; set; }
     public DateOnly? InicioAtividades { get; set; }
-    public string? Cnae { get; set; }
-    public List<string> CnaesSecundarios { get; set; } = new();
     public string? Endereco { get; set; }
     public string? Complemento { get; set; }
     public string? Bairro { get; set; }
@@ -36,10 +28,12 @@ public class EstabelecimentoModel
     public string? Email { get; set; }
     public string? SituacaoEspecial { get; set; }
     public DateOnly? SituacaoEspecialData { get; set; }
-
+    public string? Cnae { get; set; }
+    public List<string> CnaesSecundarios { get; set; } = new();
+    public List<AISocioModel> Socios { get; set; } = new();
 }
 
-public class SocioModel
+public class AISocioModel
 {
     public string? Tipo { get; set; }
     public string? Nome { get; set; }
