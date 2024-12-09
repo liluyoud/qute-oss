@@ -149,7 +149,7 @@ public static class RfbEndpoints
                     return empresaModel;
                 }
                 return null;
-            }, TimeSpan.FromSeconds(5));
+            }, TimeSpan.FromDays(1));
             return lista;
         })
         .WithName("getCnpj")
